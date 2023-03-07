@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const sgMail = require('@sendgrid/mail');
 const sqlite3 = require("sqlite3").verbose();
+//const { body, validationResult } = require('express-validator');
 
 const app = express();
 
@@ -52,6 +53,11 @@ app.post('/notification', async (req, res) => {
   // // Check if required fields are missing                        //code for the situation that we want to write our custom subject and our custom message
   // if (!to || !subject || !message) {
   //   return res.status(400).send('Missing required fields');
+  // }
+
+  // const errors = validationResult(req);
+  // if (!errors.isEmpty()) {                                           validator
+  //   return res.status(400).json({ errors: errors.array() });
   // }
 
   const { to, type } = req.body;
