@@ -1,3 +1,5 @@
 npm install express sendgrid sqlite3
 
 npm install express-validator
+
+npm install body-parser
