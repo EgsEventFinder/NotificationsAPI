@@ -44,7 +44,7 @@ app.get('/', (req, res) => {
 })
 
 // API endpoint to send email
-app.post('/send-email', async (req, res) => {
+app.post('/notification', async (req, res) => {
   const { to, subject, message } = req.body;
 
   // Check if required fields are missing
@@ -87,7 +87,7 @@ app.post('/send-email', async (req, res) => {
 });
 
 
-app.get('/send-email', (req, res) => {
+app.get('/notification', (req, res) => {
   // Retrieve all notifications from the database
   db.all(`SELECT * FROM notifications`, (error, rows) => {
     if (error) {
