@@ -55,8 +55,12 @@ app.post('/send-email', async (req, res) => {
   const email = {
     to,
     from: 'eventfinderteste@gmail.com',
-    subject,
-    text: message,
+    templateId:'d-cc6ffeffa0f64ae6b2274f8a6fc5f390',
+    dynamicTemplateData: {
+      subject,
+      text: message
+    
+  },
   };
 
   db.run(
