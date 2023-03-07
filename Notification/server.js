@@ -25,7 +25,7 @@ db.run(
     email TEXT NOT NULL,
     subject TEXT NOT NULL,
     message TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )`,
   (error) => {
     if (error) {
@@ -60,8 +60,8 @@ app.post('/send-email', async (req, res) => {
   };
 
   db.run(
-    `INSERT INTO notifications (email, subject, message)
-    VALUES (?, ?, ?)`,
+    `INSERT INTO notifications (email, subject, message, created_at)
+    VALUES (?, ?, ?, datetime('now'))`,
     [to, subject, message],
     (error) => {
       if (error) {
