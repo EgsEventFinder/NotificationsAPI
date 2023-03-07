@@ -39,6 +39,19 @@ db.run(
 // Set SendGrid API key
 sgMail.setApiKey('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');
 
+// const emailTemplates = {
+//   [emailTypes.BUY_TICKET]: {
+//     subject: 'Thank you for buying a ticket!',
+//     text: 'Dear {{name}},\n\nThank you for buying a ticket for our event. We look forward to seeing you there!'
+//   },
+//   [emailTypes.CANCEL_EVENT]: {
+//     subject: 'Event cancellation',
+//     text: 'Dear {{name}},\n\nWe regret to inform you that our event has been cancelled. We apologize for any inconvenience this may cause.'
+//   }
+// };
+
+
+// API endpoint to get index to test 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html')
 })
@@ -86,7 +99,7 @@ app.post('/notification', async (req, res) => {
 
 });
 
-
+// API endpoint to get all notifications
 app.get('/notification', (req, res) => {
   // Retrieve all notifications from the database
   db.all(`SELECT * FROM notifications`, (error, rows) => {
@@ -100,5 +113,5 @@ app.get('/notification', (req, res) => {
 });
 
 app.listen(3000, () => {
-  console.log('Example app listening on port localhost:3000 !')
+  console.log('App listening on port localhost:3000 !')
 })
