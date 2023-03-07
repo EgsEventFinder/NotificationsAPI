@@ -99,7 +99,6 @@ app.post('/notification', async (req, res) => {
     dynamicTemplateData: {
       subject,
       text: message
-    
   },
   };
 
