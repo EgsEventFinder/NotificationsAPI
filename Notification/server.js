@@ -40,7 +40,7 @@ db.run(
 // Set SendGrid API key
 sgMail.setApiKey('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');
 
-// API endpoint to get index to test 
+// API endpoint to get index to test
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index2.html')
 })
@@ -60,6 +60,7 @@ app.post('/notification', async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
+  
   const { to, type } = req.body;
   let subject, message;
 
@@ -131,9 +132,37 @@ app.post('/notification', async (req, res) => {
 });
 
 // API endpoint to get all notifications
-app.get('/notification', (req, res) => {
+app.get('/notifications', (req, res) => {
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   // Retrieve all notifications from the database
   db.all(`SELECT * FROM notifications`, (error, rows) => {
+    if (error) {
+      console.error('Error retrieving notifications from database:', error.message);
+      res.status(500).send('Error retrieving notifications');
+    } else {
+      res.status(200).json(rows);
+    }
+  });
+});
+
+
+// API endpoint to get all notification of a given user by email
+app.get('/notifications/:email', (req, res) => {
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const email = req.params.email;
+
+  // Retrieve notifications from the database that match the specified email
+  db.all(`SELECT * FROM notifications WHERE email = ?`, [email], (error, rows) => {
     if (error) {
       console.error('Error retrieving notifications from database:', error.message);
       res.status(500).send('Error retrieving notifications');
