@@ -76,43 +76,49 @@ app.post('/notification', async (req, res) => {
       // const ticketNumbers = tickets.map(ticket => ticket.number).join(', ');
 
       subject = 'Ticket purchase confirmation';
-      message = 'Thank you for your purchase. Your ticket(s) have been confirmed.';
+      message = 'Thank you for your purchase. Your ticket(s) have been confirmed. Yoru ticket info... ';
       break;
     case 'event_cancelation':
+
       subject = 'Event cancellation';
       message = 'We regret to inform you that the event, [Event Name] you registered for has been canceled.';
       break;
     case 'ticket_refund':
+
       subject = 'Ticket refund';
       message = 'Your ticket has been refunded in full.';
       break;
     case 'event_announcement':
+
       subject = 'Event Announcement';
       message = 'We are excited to announce a new event, [Event Name], and we hope you will be able to attend.';
       break;
     case 'special_offer':
+
       subject = 'Special Offer';
       message = 'We would like to offer you a special discount on your next ticket purchase.';
       break;
     case 'thank_you_email':
+
       subject = 'Thank you for attending';
       message = 'We wanted to take a moment to thank you for attending [Event Name]. We hope you had a great time and enjoyed the Event';
       break;
     case 'schedule_change':
+
       subject = 'Schedule Change';
       message = 'We wanted to let you know that there has been a change to the schedule for [Event Name]. We apologize for any inconvenience this may cause and hope that you can still attend. If you are unable to attend the event due to this change, please contact us for a refund.';
       break;
-
     case 'email_verification':
 
-      // const response = await axios.get('https://example.com/tickets', { params: { email: to } });
-      // const tickets = response.data;
-
-      // Extract the relevant information from the response
-      // const ticketNumbers = tickets.map(ticket => ticket.number).join(', ');
-
+      const { url_link_verification } = req.body;
       subject = 'Email Verification';
-      message = 'Hi! Your link to confirm the email is ....';
+      message = `Hi! Your link to confirm the email is: ${url_link_verification}`
+      break;
+    case 'ticket_sell':
+
+      const { url_link_sell_verification } = req.body;
+      subject = 'Ticket buy';
+      message = `Your ticket has been sold. Click here to complete the sale: ${url_link_sell_verification}`;
       break;
     default:
       return res.status(400).json({ message: 'Invalid notification type' });
