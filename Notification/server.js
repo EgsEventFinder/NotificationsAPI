@@ -42,7 +42,7 @@ sgMail.setApiKey('SG.9a5OmEgkSma2OLA9hP2xcg.E0-0ugDj6X22wJIBa72nhWq7ydPTM0zvkSOz
 
 // API endpoint to get index to test
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index2.html')
+  res.sendFile(__dirname + '/templates/index2.html')
 })
 
 // API endpoint to send email
@@ -60,7 +60,7 @@ app.post('/notification', async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  
+
   const { to, type } = req.body;
   let subject, message;
 
@@ -68,6 +68,13 @@ app.post('/notification', async (req, res) => {
 
   switch (type) {
     case 'ticket_buy':
+
+      // const response = await axios.get('https://example.com/tickets', { params: { email: to } });
+      // const tickets = response.data;
+
+      // Extract the relevant information from the response
+      // const ticketNumbers = tickets.map(ticket => ticket.number).join(', ');
+
       subject = 'Ticket purchase confirmation';
       message = 'Thank you for your purchase. Your ticket(s) have been confirmed.';
       break;
@@ -97,9 +104,16 @@ app.post('/notification', async (req, res) => {
       break;
 
     case 'email_verification':
+
+      // const response = await axios.get('https://example.com/tickets', { params: { email: to } });
+      // const tickets = response.data;
+
+      // Extract the relevant information from the response
+      // const ticketNumbers = tickets.map(ticket => ticket.number).join(', ');
+
       subject = 'Email Verification';
       message = 'Hi! Your link to confirm the email is ....';
-        break;
+      break;
     default:
       return res.status(400).json({ message: 'Invalid notification type' });
   }
@@ -178,7 +192,7 @@ app.get('/notifications/:email', (req, res) => {
 });
 
 // API endpoint to delete a notification by ID
-app.delete('/notifications/remove/:id', (req, res) => {
+app.delete('/notifications/remove/id/:id', (req, res) => {
   const id = parseInt(req.params.id);
 
   const errors = validationResult(req);
@@ -193,6 +207,26 @@ app.delete('/notifications/remove/:id', (req, res) => {
       res.status(500).send('Error deleting notification');
     } else {
       res.status(200).send(`Notification with ID ${id} deleted successfully`);
+    }
+  });
+});
+
+// API endpoint to delete all notifications of a user by email
+app.delete('/notifications/remove/email/:email', (req, res) => {
+  const email = req.params.email;
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  // Delete the notifications from the database
+  db.run(`DELETE FROM notifications WHERE email = ?`, email, (error) => {
+    if (error) {
+      console.error('Error deleting notifications from database:', error.message);
+      res.status(500).send('Error deleting notification');
+    } else {
+      res.status(200).send(`Notifications with email ${email} deleted successfully`);
     }
   });
 });
