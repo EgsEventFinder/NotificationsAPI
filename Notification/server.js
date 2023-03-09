@@ -95,6 +95,11 @@ app.post('/notification', async (req, res) => {
       subject = 'Schedule Change';
       message = 'We wanted to let you know that there has been a change to the schedule for [Event Name]. We apologize for any inconvenience this may cause and hope that you can still attend. If you are unable to attend the event due to this change, please contact us for a refund.';
       break;
+
+    case 'email_verification':
+      subject = 'Email Verification';
+      message = 'Hi! Your link to confirm the email is ....';
+        break;
     default:
       return res.status(400).json({ message: 'Invalid notification type' });
   }
@@ -168,6 +173,26 @@ app.get('/notifications/:email', (req, res) => {
       res.status(500).send('Error retrieving notifications');
     } else {
       res.status(200).json(rows);
+    }
+  });
+});
+
+// API endpoint to delete a notification by ID
+app.delete('/notifications/remove/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  // Delete the notification from the database
+  db.run(`DELETE FROM notifications WHERE id = ?`, id, (error) => {
+    if (error) {
+      console.error('Error deleting notification from database:', error.message);
+      res.status(500).send('Error deleting notification');
+    } else {
+      res.status(200).send(`Notification with ID ${id} deleted successfully`);
     }
   });
 });
