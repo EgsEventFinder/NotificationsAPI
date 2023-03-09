@@ -111,6 +111,7 @@ app.post('/notification', async (req, res) => {
     case 'email_verification':
 
       const { url_link_verification } = req.body;
+      
       subject = 'Email Verification';
       message = `Dear ${to}, Thank you for signing up with us. To complete your registration, please verify your email address by clicking the link:  ${url_link_verification}`
       break;
@@ -118,6 +119,7 @@ app.post('/notification', async (req, res) => {
 
       const { ticket_ID } = req.body;
       const { url_link_sell_verification } = req.body;
+
       subject = 'Ticket Sell';
       message = `Dear ${to}, we are pleased to inform you that your ticket ${ticket_ID} has been sold successfully. Click here to complete the sale: ${url_link_sell_verification}`;
       break;
