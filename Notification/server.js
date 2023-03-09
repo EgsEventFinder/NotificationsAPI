@@ -76,7 +76,7 @@ app.post('/notification', async (req, res) => {
       // const ticketNumbers = tickets.map(ticket => ticket.number).join(', ');
 
       subject = 'Ticket purchase confirmation';
-      message = 'Thank you for your purchase. Your ticket(s) have been confirmed. Yoru ticket info... ';
+      message = `Dear ${to}, Thank you for your purchase. Your ticket(s) have been confirmed. Yoru ticket info... `;
       break;
     case 'event_cancelation':
 
@@ -112,13 +112,14 @@ app.post('/notification', async (req, res) => {
 
       const { url_link_verification } = req.body;
       subject = 'Email Verification';
-      message = `Hi! Your link to confirm the email is: ${url_link_verification}`
+      message = `Dear ${to}, Thank you for signing up with us. To complete your registration, please verify your email address by clicking the link:  ${url_link_verification}`
       break;
     case 'ticket_sell':
 
+      const { ticket_ID } = req.body;
       const { url_link_sell_verification } = req.body;
-      subject = 'Ticket buy';
-      message = `Your ticket has been sold. Click here to complete the sale: ${url_link_sell_verification}`;
+      subject = 'Ticket Sell';
+      message = `Dear ${to}, we are pleased to inform you that your ticket ${ticket_ID} has been sold successfully. Click here to complete the sale: ${url_link_sell_verification}`;
       break;
     default:
       return res.status(400).json({ message: 'Invalid notification type' });
