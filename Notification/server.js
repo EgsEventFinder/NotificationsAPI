@@ -37,6 +37,37 @@ db.run(
   }
 );
 
+// Create the groups table in the database if it doesn't exist
+db.run(
+  `CREATE TABLE IF NOT EXISTS groups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL
+   )`,
+   (error) => {
+     if (error) {
+      console.error('Error creating groups table:', error.message);
+    } else {
+      console.log('Groups table created successfully');
+    }
+   }
+);
+
+// Create the group_members table in the database if it doesn't exist
+db.run(
+    `CREATE TABLE IF NOT EXISTS group_members (
+     group_id INTEGER NOT NULL,
+     email TEXT NOT NULL,
+     FOREIGN KEY (group_id) REFERENCES groups(id)
+   )`,
+   (error) => {
+     if (error) {
+       console.error('Error creating group_members table:', error.message);
+     } else {
+       console.log('Group_members table created successfully');
+     }
+   }
+ );
+
 // Set SendGrid API key
 sgMail.setApiKey('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');
 
@@ -55,18 +86,29 @@ app.post('/notification', async (req, res) => {
   //   return res.status(400).send('Missing required fields');
   // }
 
+  //usage
+  //to send to 1 email   "to": "email@email.com"
+  //to send to multiple emails   "to": ["email@email.com", "email2.email.com", "email3.email.com"]
+
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
-
   const { to, type } = req.body;
+
+  // Check if required fields are missing
+  if (!to) {
+    return res.status(400).send('Missing to');
+  }
+  if (!type) {
+    return res.status(400).send('Missing type');
+  }
+
   const recipients = to.toString().split(',');
   let subject, message;
 
   //different types of notifications
-
   switch (type) {
     case 'ticket_buy':
 
@@ -77,6 +119,7 @@ app.post('/notification', async (req, res) => {
       // const ticketNumbers = tickets.map(ticket => ticket.number).join(', ');
 
       //send notification when a user buys 1 ticket
+
       if(recipients.length == 1 ){
         subject = 'Ticket purchase confirmation';
         message = `Dear ${to}, Thank you for your purchase. Your ticket(s) have been confirmed. Yoru ticket info... `;
@@ -118,17 +161,36 @@ app.post('/notification', async (req, res) => {
     case 'email_verification':
 
       //send an email to user when user is registing
-      const { url_link_verification } = req.body;
-      
-      subject = 'Email Verification';
-      message = `Dear ${to}, Thank you for signing up with us. To complete your registration, please verify your email address by clicking the link:  ${url_link_verification}`
+      if(recipients.length == 1 ){
+        const { url_link_verification } = req.body;
+
+        // Check if required fields are missing
+        if (!url_link_verification) {
+          return res.status(400).send('Missing url_link_verification');
+        }
+
+        subject = 'Email Verification';
+        message = `Dear ${to}, Thank you for signing up with us. To complete your registration, please verify your email address by clicking the link:  ${url_link_verification}`
+      }
+      else{
+        return res.status(400).json({ message: 'Recipients size must be 1' });
+      }
       break;
     case 'ticket_sell':
 
       //send email to user about the ticket sell
       if(recipients.length == 1 ){
+
         const { ticket_ID } = req.body;
         const { url_link_sell_verification } = req.body;
+
+        // Check if required fields are missing
+        if (!ticket_ID) {
+          return res.status(400).send('Missing ticket_ID');
+        }
+        if (!url_link_sell_verification) {
+          return res.status(400).send('Missing url_link_sell_verification');
+        }
 
         subject = 'Ticket Sell';
         message = `Dear ${to}, we are pleased to inform you that your ticket ${ticket_ID} has been sold successfully. Click here to complete the sale: ${url_link_sell_verification}`;
@@ -263,6 +325,91 @@ app.delete('/notifications/remove/email/:email', (req, res) => {
       res.status(500).send('Error deleting notification');
     } else {
       res.status(200).send(`Notifications with email ${email} deleted successfully`);
+    }
+  });
+});
+
+
+//API endpoint to create a group
+app.post('/groups', async (req, res) => {
+  const { name } = req.body;
+
+  // Check if required fields are missing
+  if (!name) {
+    return res.status(400).send('Missing required fields');
+  }
+
+  db.get(
+    `SELECT * FROM groups WHERE name = ?`,
+    [name],
+    (error, row) => {
+      if (error) {
+        console.error('Error selecting:', error.message);
+      } else if (row) {
+        console.log('Group already exists:', row);
+        return res.status(200).send('Group already exists');
+      } else {
+        db.run(
+          `INSERT INTO groups (name)
+          VALUES (?)`,
+          [name],
+          (error) => {
+            if (error) {
+              console.error('Error inserting:', error.message);
+            } else {
+              console.log('Inserted');
+            }
+          }
+        );
+      }
+    }
+  );
+
+});
+
+//API endpoint to delete a group
+app.delete('/groups/remove/:name', async (req, res) => {
+
+  const name = req.params.name;
+
+  db.run(`DELETE FROM groups WHERE name = ?`, name, (error) => {
+    if (error) {
+      console.error('Error deleting group from database:', error.message);
+      res.status(500).send('Error deleting group');
+    } else {
+      res.status(200).send(`Group with name ${name} deleted successfully`);
+    }
+  });
+
+});
+
+app.put('/groups/:id/members', (req, res) => {
+  const groupId = req.params.id;
+  const members = req.body.members;
+
+  // Add members to the group with the given ID
+  db.serialize(() => {
+    const stmt = db.prepare('INSERT INTO group_members (group_id, email) VALUES (?, ?)');
+    members.forEach(member => {
+      stmt.run(groupId, member);
+    });
+    stmt.finalize();
+  });
+
+  res.send('Members added to group');
+});
+
+app.get('/groupss', (req, res) => {
+
+  
+
+  // Retrieve all notifications from the database
+  db.all(`SELECT * FROM group_members`, (error, rows) => {
+    if (error) {
+      console.error('Error retrieving notifications from database:', error.message);
+      res.status(500).send('Error retrieving notifications');
+    } else {
+      res.status(200).json(rows);
     }
   });
 });
