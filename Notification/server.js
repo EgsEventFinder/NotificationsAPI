@@ -76,8 +76,14 @@ app.post('/notification', async (req, res) => {
       // Extract the relevant information from the response
       // const ticketNumbers = tickets.map(ticket => ticket.number).join(', ');
 
-      subject = 'Ticket purchase confirmation';
-      message = `Dear ${to}, Thank you for your purchase. Your ticket(s) have been confirmed. Yoru ticket info... `;
+      //send notification when a user buys 1 ticket
+      if(recipients.length == 1 ){
+        subject = 'Ticket purchase confirmation';
+        message = `Dear ${to}, Thank you for your purchase. Your ticket(s) have been confirmed. Yoru ticket info... `;
+      }
+      else{
+        return res.status(400).json({ message: 'Recipients size must be 1' });
+      }
       break;
     case 'event_cancelation':
 
@@ -111,6 +117,7 @@ app.post('/notification', async (req, res) => {
       break;
     case 'email_verification':
 
+      //send an email to user when user is registing
       const { url_link_verification } = req.body;
       
       subject = 'Email Verification';
@@ -118,17 +125,28 @@ app.post('/notification', async (req, res) => {
       break;
     case 'ticket_sell':
 
-      const { ticket_ID } = req.body;
-      const { url_link_sell_verification } = req.body;
+      //send email to user about the ticket sell
+      if(recipients.length == 1 ){
+        const { ticket_ID } = req.body;
+        const { url_link_sell_verification } = req.body;
 
-      subject = 'Ticket Sell';
-      message = `Dear ${to}, we are pleased to inform you that your ticket ${ticket_ID} has been sold successfully. Click here to complete the sale: ${url_link_sell_verification}`;
+        subject = 'Ticket Sell';
+        message = `Dear ${to}, we are pleased to inform you that your ticket ${ticket_ID} has been sold successfully. Click here to complete the sale: ${url_link_sell_verification}`;
+      }
+      else{
+        return res.status(400).json({ message: 'Recipients size must be 1' });
+      }
       break;
 
     case 'confirmation_ticket_sell':
-
-      subject = 'Confirmation_ticket_sell';
-      message = `Dears ${to}, we are pleased to inform that transfer was successfull`;
+      //send email to both persons in the ticket sell
+      if(recipients.length == 2 ){
+        subject = 'Confirmation_ticket_sell';
+        message = `Dears ${to}, we are pleased to inform that transfer was successfull`;
+      }
+      else{
+        return res.status(400).json({ message: 'Recipients size must be 2' });
+      }
       break;
     default:
       return res.status(400).json({ message: 'Invalid notification type' });
