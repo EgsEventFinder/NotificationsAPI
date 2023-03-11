@@ -331,7 +331,7 @@ app.delete('/notifications/remove/email/:email', (req, res) => {
 
 
 //API endpoint to create a group
-app.post('/groups', async (req, res) => {
+app.post('/group', async (req, res) => {
   const { name } = req.body;
 
   // Check if required fields are missing
@@ -383,6 +383,7 @@ app.delete('/groups/remove/:name', async (req, res) => {
 
 });
 
+//API endpoint to add users to a group
 app.put('/groups/:id/members', (req, res) => {
   const groupId = req.params.id;
   const members = req.body.members;
@@ -399,6 +400,7 @@ app.put('/groups/:id/members', (req, res) => {
   res.send('Members added to group');
 });
 
+//API endpoint to get all users in each groupID
 app.get('/groups', (req, res) => {
 
   // Retrieve all notifications from the database
