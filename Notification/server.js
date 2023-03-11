@@ -62,6 +62,7 @@ app.post('/notification', async (req, res) => {
 
 
   const { to, type } = req.body;
+  const recipients = to.toString().split(',');
   let subject, message;
 
   //different types of notifications
@@ -123,6 +124,12 @@ app.post('/notification', async (req, res) => {
       subject = 'Ticket Sell';
       message = `Dear ${to}, we are pleased to inform you that your ticket ${ticket_ID} has been sold successfully. Click here to complete the sale: ${url_link_sell_verification}`;
       break;
+
+    case 'confirmation_ticket_sell':
+
+      subject = 'Confirmation_ticket_sell';
+      message = `Dears ${to}, we are pleased to inform that transfer was successfull}`;
+      break;
     default:
       return res.status(400).json({ message: 'Invalid notification type' });
   }
@@ -137,18 +144,20 @@ app.post('/notification', async (req, res) => {
   },
   };
 
-  db.run(
-    `INSERT INTO notifications (email, subject, message, created_at)
-    VALUES (?, ?, ?, datetime('now'))`,
-    [to, subject, message],
-    (error) => {
-      if (error) {
-        console.error('Error inseerting:', error.message);
-      } else {
-        console.log('Inserted');
+  for (let i = 0; i < recipients.length; i++) {
+    db.run(
+      `INSERT INTO notifications (email, subject, message, created_at)
+      VALUES (?, ?, ?, datetime('now'))`,
+      [recipients[i], subject, message],
+      (error) => {
+        if (error) {
+          console.error('Error inseerting:', error.message);
+        } else {
+          console.log('Inserted');
+        }
       }
-    }
-  );
+    );
+  }
 
   try {
     await sgMail.send(email);
