@@ -128,7 +128,7 @@ app.post('/notification', async (req, res) => {
     case 'confirmation_ticket_sell':
 
       subject = 'Confirmation_ticket_sell';
-      message = `Dears ${to}, we are pleased to inform that transfer was successfull}`;
+      message = `Dears ${to}, we are pleased to inform that transfer was successfull`;
       break;
     default:
       return res.status(400).json({ message: 'Invalid notification type' });
