@@ -399,9 +399,7 @@ app.put('/groups/:id/members', (req, res) => {
   res.send('Members added to group');
 });
 
-app.get('/groupss', (req, res) => {
-
-  
+app.get('/groups', (req, res) => {
 
   // Retrieve all notifications from the database
   db.all(`SELECT * FROM group_members`, (error, rows) => {
