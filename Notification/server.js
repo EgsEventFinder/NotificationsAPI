@@ -414,6 +414,42 @@ app.get('/groups', (req, res) => {
   });
 });
 
+//API endpoint to send notification to a group
+app.post('/group-notification', async (req, res) => {
+  const { groupId, subject, message } = req.body;
+  
+  // Check if required fields are missing
+  if (!groupId || !subject || !message) {
+    return res.status(400).send('Missing required fields');
+  }
+
+  // Get the list of email addresses for the given group ID from the database
+  const groupMembers = await new Promise((resolve, reject) => {
+    db.all(`SELECT email FROM group_members WHERE group_id = ?`, [groupId], (err, rows) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(rows.map(row => row.email));
+      }
+    });
+  });
+
+  // Send the email to each member of the group using SendGrid
+  const msg = {
+    to: groupMembers,
+    from: 'eventfinderteste@gmail.com',
+    subject,
+    text: message,
+  };
+  try {
+    await sgMail.send(msg);
+    res.status(200).send('Email sent successfully');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('An error occurred while sending the email');
+  }
+});
+
 app.listen(3000, () => {
   console.log('App listening on port localhost:3000 !')
 })
