@@ -112,12 +112,6 @@ app.post('/notification', async (req, res) => {
   switch (type) {
     case 'ticket_buy':
 
-      // const response = await axios.get('https://example.com/tickets', { params: { email: to } });
-      // const tickets = response.data;
-
-      // Extract the relevant information from the response
-      // const ticketNumbers = tickets.map(ticket => ticket.number).join(', ');
-
       //send notification when a user buys 1 ticket
 
       if(recipients.length == 1 ){
