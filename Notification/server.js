@@ -435,6 +435,22 @@ app.post('/group-notification', async (req, res) => {
     subject,
     text: message,
   };
+
+    for (let i = 0; i < groupMembers.length; i++) {
+    db.run(
+      `INSERT INTO notifications (email, subject, message, created_at)
+      VALUES (?, ?, ?, datetime('now'))`,
+      [groupMembers[i], subject, message],
+      (error) => {
+        if (error) {
+          console.error('Error inseerting:', error.message);
+        } else {
+          console.log('Inserted');
+        }
+      }
+    );
+  }
+
   try {
     await sgMail.send(msg);
     res.status(200).send('Email sent successfully');
