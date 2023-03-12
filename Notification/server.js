@@ -410,13 +410,17 @@ app.get('/groups', (req, res) => {
 
 //API endpoint to send notification to a group
 app.post('/group-notification', async (req, res) => {
-  const { groupId, subject, message } = req.body;
-  
-  // Check if required fields are missing
-  if (!groupId || !subject || !message) {
-    return res.status(400).send('Missing required fields');
-  }
+  const { groupId, type } = req.body;
+  let subject, message;
 
+  // Check if required fields are missing
+  if (!groupId) {
+    return res.status(400).send('Missing groupId');
+  }
+  if (!type) {
+    return res.status(400).send('Missing type');
+  }
+  
   // Get the list of email addresses for the given group ID from the database
   const groupMembers = await new Promise((resolve, reject) => {
     db.all(`SELECT email FROM group_members WHERE group_id = ?`, [groupId], (err, rows) => {
@@ -428,12 +432,46 @@ app.post('/group-notification', async (req, res) => {
     });
   });
 
+  switch(type){
+
+    case 'event_cancelation':
+
+      subject = 'Event cancellation';
+      message = 'We regret to inform you that the event, [Event Name] you registered for has been canceled.';
+      break;
+
+    case 'event_announcement':
+
+      subject = 'Event Announcement';
+      message = 'We are excited to announce a new event, [Event Name], and we hope you will be able to attend.';
+      break;
+    case 'special_offer':
+
+      subject = 'Special Offer';
+      message = 'We would like to offer you a special discount on your next ticket purchase.';
+      break;
+    case 'thank_you_email':
+
+      subject = 'Thank you for attending';
+      message = 'We wanted to take a moment to thank you for attending [Event Name]. We hope you had a great time and enjoyed the Event';
+      break;
+    case 'schedule_change':
+
+      subject = 'Schedule Change';
+      message = 'We wanted to let you know that there has been a change to the schedule for [Event Name]. We apologize for any inconvenience this may cause and hope that you can still attend. If you are unable to attend the event due to this change, please contact us for a refund.';
+      break;
+
+  }
+
   // Send the email to each member of the group using SendGrid
-  const msg = {
+    const msg = {
     to: groupMembers,
     from: 'eventfinderteste@gmail.com',
-    subject,
-    text: message,
+    templateId:'d-cc6ffeffa0f64ae6b2274f8a6fc5f390',
+    dynamicTemplateData: {
+      subject,
+      text: message
+  },
   };
 
     for (let i = 0; i < groupMembers.length; i++) {
