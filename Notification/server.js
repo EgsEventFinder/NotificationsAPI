@@ -498,6 +498,6 @@ app.post('/group-notification', async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log('App listening on port localhost:3000 !')
+app.listen(3003, () => {
+  console.log('App listening on port localhost:3003 !')
 })
