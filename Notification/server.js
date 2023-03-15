@@ -243,7 +243,7 @@ app.post('/notification', async (req, res) => {
 });
 
 // API endpoint to get all notifications
-app.get('/notifications', (req, res) => {
+app.get('/notification', (req, res) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -263,7 +263,7 @@ app.get('/notifications', (req, res) => {
 
 
 // API endpoint to get all notification of a given user by email
-app.get('/notifications/:email', (req, res) => {
+app.get('/notification/:email', (req, res) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -284,7 +284,7 @@ app.get('/notifications/:email', (req, res) => {
 });
 
 // API endpoint to delete a notification by ID
-app.delete('/notifications/remove/id/:id', (req, res) => {
+app.delete('/notification/remove/id/:id', (req, res) => {
   const id = parseInt(req.params.id);
 
   const errors = validationResult(req);
@@ -304,7 +304,7 @@ app.delete('/notifications/remove/id/:id', (req, res) => {
 });
 
 // API endpoint to delete all notifications of a user by email
-app.delete('/notifications/remove/email/:email', (req, res) => {
+app.delete('/notification/remove/email/:email', (req, res) => {
   const email = req.params.email;
 
   const errors = validationResult(req);
@@ -362,7 +362,7 @@ app.post('/group', async (req, res) => {
 });
 
 //API endpoint to delete a group
-app.delete('/groups/remove/:name', async (req, res) => {
+app.delete('/group/:name', async (req, res) => {
 
   const name = req.params.name;
 
@@ -378,7 +378,7 @@ app.delete('/groups/remove/:name', async (req, res) => {
 });
 
 //API endpoint to add users to a group
-app.put('/groups/:id/members', (req, res) => {
+app.put('/group/:id', (req, res) => {
   const groupId = req.params.id;
   const members = req.body.members;
 
@@ -395,7 +395,7 @@ app.put('/groups/:id/members', (req, res) => {
 });
 
 //API endpoint to get all users in each groupID
-app.get('/groups', (req, res) => {
+app.get('/group', (req, res) => {
 
   // Retrieve all notifications from the database
   db.all(`SELECT * FROM group_members`, (error, rows) => {
@@ -409,7 +409,7 @@ app.get('/groups', (req, res) => {
 });
 
 //API endpoint to send notification to a group
-app.post('/group-notification', async (req, res) => {
+app.post('/groupnotification', async (req, res) => {
   const { groupId, type } = req.body;
   let subject, message;
 
