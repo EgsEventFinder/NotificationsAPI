@@ -76,15 +76,24 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/templates/index2.html')
 })
 
+
 // API endpoint to send email
 app.post('/notification', async (req, res) => {
 
-  // const { to, subject, message } = req.body;
+  const { to, subject, message } = req.body;
 
-  // // Check if required fields are missing                        //code for the situation that we want to write our custom subject and our custom message
-  // if (!to || !subject || !message) {
-  //   return res.status(400).send('Missing required fields');
-  // }
+   // Check if required fields are missing                        //code for the situation that we want to write our custom subject and our custom message
+  if (!to ) {
+    return res.status(400).send('Missing "to" parameter');
+   }
+
+   if (!subject) {
+    return res.status(400).send('Missing "subject" parameter');
+   }
+
+   if (!message) {
+    return res.status(400).send('Missing "message" parameter');
+   }
 
   //usage
   //to send to 1 email   "to": "email@email.com"
@@ -95,119 +104,9 @@ app.post('/notification', async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { to, type } = req.body;
-
-  // Check if required fields are missing
-  if (!to) {
-    return res.status(400).send('Missing to');
-  }
-  if (!type) {
-    return res.status(400).send('Missing type');
-  }
-
   const recipients = to.toString().split(',');
-  let subject, message;
 
-  //different types of notifications
-  switch (type) {
-    case 'ticket_buy':
-
-      //send notification when a user buys 1 ticket
-
-      if(recipients.length == 1 ){
-        subject = 'Ticket purchase confirmation';
-        message = `Dear ${to}, Thank you for your purchase. Your ticket(s) have been confirmed. Yoru ticket info... `;
-      }
-      else{
-        return res.status(400).json({ message: 'Recipients size must be 1' });
-      }
-      break;
-    case 'event_cancelation':
-
-      subject = 'Event cancellation';
-      message = 'We regret to inform you that the event, [Event Name] you registered for has been canceled.';
-      break;
-    case 'ticket_refund':
-
-      subject = 'Ticket refund';
-      message = 'Your ticket has been refunded in full.';
-      break;
-    case 'event_announcement':
-
-      subject = 'Event Announcement';
-      message = 'We are excited to announce a new event, [Event Name], and we hope you will be able to attend.';
-      break;
-    case 'special_offer':
-
-      subject = 'Special Offer';
-      message = 'We would like to offer you a special discount on your next ticket purchase.';
-      break;
-    case 'thank_you_email':
-
-      subject = 'Thank you for attending';
-      message = 'We wanted to take a moment to thank you for attending [Event Name]. We hope you had a great time and enjoyed the Event';
-      break;
-    case 'schedule_change':
-
-      subject = 'Schedule Change';
-      message = 'We wanted to let you know that there has been a change to the schedule for [Event Name]. We apologize for any inconvenience this may cause and hope that you can still attend. If you are unable to attend the event due to this change, please contact us for a refund.';
-      break;
-    case 'email_verification':
-
-      //send an email to user when user is registing
-      if(recipients.length == 1 ){
-        const { url_link_verification } = req.body;
-
-        // Check if required fields are missing
-        if (!url_link_verification) {
-          return res.status(400).send('Missing url_link_verification');
-        }
-
-        subject = 'Email Verification';
-        message = `Dear ${to}, Thank you for signing up with us. To complete your registration, please verify your email address by clicking the link:  ${url_link_verification}`
-      }
-      else{
-        return res.status(400).json({ message: 'Recipients size must be 1' });
-      }
-      break;
-    case 'ticket_sell':
-
-      //send email to user about the ticket sell
-      if(recipients.length == 1 ){
-
-        const { ticket_ID } = req.body;
-        const { url_link_sell_verification } = req.body;
-
-        // Check if required fields are missing
-        if (!ticket_ID) {
-          return res.status(400).send('Missing ticket_ID');
-        }
-        if (!url_link_sell_verification) {
-          return res.status(400).send('Missing url_link_sell_verification');
-        }
-
-        subject = 'Ticket Sell';
-        message = `Dear ${to}, we are pleased to inform you that your ticket ${ticket_ID} has been sold successfully. Click here to complete the sale: ${url_link_sell_verification}`;
-      }
-      else{
-        return res.status(400).json({ message: 'Recipients size must be 1' });
-      }
-      break;
-
-    case 'confirmation_ticket_sell':
-      //send email to both persons in the ticket sell
-      if(recipients.length == 2 ){
-        subject = 'Confirmation_ticket_sell';
-        message = `Dears ${to}, we are pleased to inform that transfer was successfull`;
-      }
-      else{
-        return res.status(400).json({ message: 'Recipients size must be 2' });
-      }
-      break;
-    default:
-      return res.status(400).json({ message: 'Invalid notification type' });
-  }
-
+ //send email
   const email = {
     to,
     from: 'eventfinderteste@gmail.com',
@@ -380,7 +279,9 @@ app.delete('/group/:name', async (req, res) => {
 //API endpoint to add users to a group
 app.put('/group/:id', (req, res) => {
   const groupId = req.params.id;
+
   const members = req.body.members;
+  //usage  "members": ["diogotorrinhas@ua.pt", "joao.torrinhas@ua.pt"]
 
   // Add members to the group with the given ID
   db.serialize(() => {
@@ -410,15 +311,17 @@ app.get('/group', (req, res) => {
 
 //API endpoint to send notification to a group
 app.post('/groupnotification', async (req, res) => {
-  const { groupId, type } = req.body;
-  let subject, message;
-
+  const { groupId, subject, message } = req.body;
+  
   // Check if required fields are missing
   if (!groupId) {
-    return res.status(400).send('Missing groupId');
+    return res.status(400).send('Missing "groupId" parameter');
   }
-  if (!type) {
-    return res.status(400).send('Missing type');
+  if (!subject) {
+    return res.status(400).send('Missing "subject" parameter');
+  }
+  if (!message) {
+    return res.status(400).send('Missing "message" parameter');
   }
   
   // Get the list of email addresses for the given group ID from the database
@@ -432,37 +335,7 @@ app.post('/groupnotification', async (req, res) => {
     });
   });
 
-  switch(type){
-
-    case 'event_cancelation':
-
-      subject = 'Event cancellation';
-      message = 'We regret to inform you that the event, [Event Name] you registered for has been canceled.';
-      break;
-
-    case 'event_announcement':
-
-      subject = 'Event Announcement';
-      message = 'We are excited to announce a new event, [Event Name], and we hope you will be able to attend.';
-      break;
-    case 'special_offer':
-
-      subject = 'Special Offer';
-      message = 'We would like to offer you a special discount on your next ticket purchase.';
-      break;
-    case 'thank_you_email':
-
-      subject = 'Thank you for attending';
-      message = 'We wanted to take a moment to thank you for attending [Event Name]. We hope you had a great time and enjoyed the Event';
-      break;
-    case 'schedule_change':
-
-      subject = 'Schedule Change';
-      message = 'We wanted to let you know that there has been a change to the schedule for [Event Name]. We apologize for any inconvenience this may cause and hope that you can still attend. If you are unable to attend the event due to this change, please contact us for a refund.';
-      break;
-
-  }
-
+ 
   // Send the email to each member of the group using SendGrid
     const msg = {
     to: groupMembers,
