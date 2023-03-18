@@ -177,6 +177,10 @@ app.get('/notification/:email', (req, res) => {
       console.error('Error retrieving notifications from database:', error.message);
       res.status(500).send('Error retrieving notifications');
     } else {
+      // Set the necessary headers to allow cross-origin requests
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
       res.status(200).json(rows);
     }
   });
