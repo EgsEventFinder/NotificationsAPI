@@ -261,19 +261,26 @@ app.post('/group', async (req, res) => {
 });
 
 //API endpoint to delete a group
-app.delete('/group/:name', async (req, res) => {
+app.delete('/group/:id', (req, res) => {
+  const id = req.params.id;
 
-  const name = req.params.name;
-
-  db.run(`DELETE FROM groups WHERE name = ?`, name, (error) => {
+  db.run(`DELETE FROM groups WHERE id = ?`, [id], (error) => {
     if (error) {
       console.error('Error deleting group from database:', error.message);
       res.status(500).send('Error deleting group');
     } else {
-      res.status(200).send(`Group with name ${name} deleted successfully`);
+      console.log('Group deleted successfully');
+      // Remove all users associated with the group
+      db.run(`DELETE FROM group_members WHERE group_id = ?`, [id], (error) => {
+        if (error) {
+          console.error('Error deleting group members from database:', error.message);
+        } else {
+          console.log('Group members deleted successfully');
+        }
+      });
+      res.status(200).send('Group deleted successfully');
     }
   });
-
 });
 
 //API endpoint to add users to a group
@@ -369,6 +376,31 @@ app.post('/groupnotification', async (req, res) => {
     console.error(error);
     res.status(500).send('An error occurred while sending the email');
   }
+});
+
+// API endpoint to get a group by ID
+app.get('/group/:name', (req, res) => {
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const name = req.params.name;
+
+  // Retrieve the group id from the database that matches the given name
+  db.get(`SELECT id FROM groups WHERE name = ?`, [name], (error, row) => {
+    if (error) {
+      console.error('Error retrieving group from database:', error.message);
+      res.status(500).send('Error retrieving group');
+    } else {
+      if (row) {
+        res.status(200).json({ id: row.id });
+      } else {
+        res.status(404).send('Group not found');
+      }
+    }
+  });
 });
 
 app.listen(3003, () => {
