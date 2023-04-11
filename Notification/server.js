@@ -290,15 +290,25 @@ app.delete('/group/:id', (req, res) => {
 //API endpoint to add users to a group
 app.put('/group/:id', (req, res) => {
   const groupId = req.params.id;
-
   const members = req.body.members;
-  //usage  "members": ["diogotorrinhas@ua.pt", "joao.torrinhas@ua.pt"]
 
-  // Add members to the group with the given ID
+  // Check if each member email already exists in the group for the given ID
   db.serialize(() => {
-    const stmt = db.prepare('INSERT INTO group_members (group_id, email) VALUES (?, ?)');
+    const stmt = db.prepare('SELECT COUNT(*) as count FROM group_members WHERE group_id = ? AND email = ?');
     members.forEach(member => {
-      stmt.run(groupId, member);
+      stmt.get(groupId, member, (err, row) => {
+        if (err) {
+          console.error(err.message);
+          res.send('Members already there')
+        } else {
+          // If the email does not exist in the group, add it to the table
+          if (row.count === 0) {
+            const insertStmt = db.prepare('INSERT INTO group_members (group_id, email) VALUES (?, ?)');
+            insertStmt.run(groupId, member);
+            insertStmt.finalize();
+          }
+        }
+      });
     });
     stmt.finalize();
   });
