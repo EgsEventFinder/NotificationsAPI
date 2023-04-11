@@ -292,6 +292,7 @@ app.put('/group/:id', (req, res) => {
   const groupId = req.params.id;
   const members = req.body.members;
 
+  //usage "members" : [""mail@gmail.com]
   // Check if each member email already exists in the group for the given ID
   db.serialize(() => {
     const stmt = db.prepare('SELECT COUNT(*) as count FROM group_members WHERE group_id = ? AND email = ?');
