@@ -187,7 +187,7 @@ app.get('/notification/:email', (req, res) => {
 });
 
 // API endpoint to delete a notification by ID
-app.delete('/notification/remove/id/:id', (req, res) => {
+app.delete('/notification/delete/id/:id', (req, res) => {
   const id = parseInt(req.params.id);
 
   const errors = validationResult(req);
@@ -207,7 +207,7 @@ app.delete('/notification/remove/id/:id', (req, res) => {
 });
 
 // API endpoint to delete all notifications of a user by email
-app.delete('/notification/remove/email/:email', (req, res) => {
+app.delete('/notification/delete/email/:email', (req, res) => {
   const email = req.params.email;
 
   const errors = validationResult(req);
