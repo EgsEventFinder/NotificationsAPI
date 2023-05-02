@@ -11,21 +11,20 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'notifications_user',
+const db = mysql.createPool({
+  host: 'db',
+  user: 'diogo',
   password: 'password',
-  database: 'notifications_db',
+  database: 'notifications',
 });
 
-db.connect((error) => {
-  if (error) {
-    console.error('Error connecting to database:', error.message);
-  } else {
-    console.log('Database connected successfully');
+db.getConnection((err) => {
+  if (err) {
+    console.error('Error connecting to the database:', err);
+    process.exit(1);
   }
-});
 
+  console.log('Connected to the database');
 // Create the notifications table in the database if it doesn't exist
 db.query(`
   CREATE TABLE IF NOT EXISTS notifications (
@@ -43,7 +42,6 @@ db.query(`
     }
   }
 );
-
 
 
 // Create the groups table in the database if it doesn't exist
@@ -431,4 +429,5 @@ app.get('/group/:name', (req, res) => {
 
 app.listen(3003, () => {
   console.log('App listening on port localhost:3003 !')
-})
+});
+});

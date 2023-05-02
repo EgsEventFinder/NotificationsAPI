@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_DATABASE: notifications
+      MYSQL_USER: diogo
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root_password # add this line
+
+    volumes:
+      - /data/mysql:/var/lib/mysql
+
+
+  app:
+    build: .
+    restart: always
+    ports:
+      - '3003:3003'
+    depends_on:
+      - db
+    environment:
+      DB_USER: diogo
+      DB_PASSWORD: password
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: notifications
