@@ -4,6 +4,7 @@ const sgMail = require('@sendgrid/mail');
 //const sqlite3 = require("sqlite3").verbose();
 const mysql = require('mysql2');
 const { body, validationResult } = require('express-validator');
+require('dotenv').config();
 
 const app = express();
 
@@ -12,10 +13,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 const db = mysql.createPool({
-  host: 'db',
-  user: 'diogo',
-  password: 'password',
-  database: 'notifications',
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
 });
 
 db.getConnection((err) => {
@@ -74,7 +75,7 @@ db.query(`
 );
 
 // Set SendGrid API key
-sgMail.setApiKey('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');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // API endpoint to get index to test
 app.get('/', (req, res) => {
