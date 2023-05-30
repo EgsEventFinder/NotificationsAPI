@@ -1,0 +1,48 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-db
+  namespace: egs-eventfinder
+spec:
+  selector:
+    matchLabels:
+      app: notification-db
+  template:
+    metadata:
+      labels:
+        app: notification-db
+    spec:
+      containers:
+      - name: notification-db
+        image: mysql:8.0
+        ports:
+        - containerPort: 3306
+          name: notification-db
+        volumeMounts:
+          - name: mysql-persistent-storage
+            mountPath: /var/lib/mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: notificationdb-secrets
+              key: db_password
+      volumes:
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: notification-pvc-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-db
+  namespace: egs-eventfinder
+spec:
+  ports:
+  - port: 3306
+    protocol: TCP
+    name: notification-db
+  selector:
+    app: notification-db
+  type: NodePort
